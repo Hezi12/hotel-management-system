@@ -1,0 +1,1 @@
+console.clear(); console.log('נטענו נתונים:'); console.log(JSON.parse(localStorage.getItem('hotelRooms')));console.log('נבדוק דוגמת תמונה:'); const rooms = JSON.parse(localStorage.getItem('hotelRooms')); if(rooms && rooms.length > 0) console.log(rooms[0].mainImage?.substring(0, 100));
