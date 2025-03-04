@@ -508,7 +508,15 @@ export const performCheckOut = async (bookingId) => {
 // פונקציות API לאימות
 export const loginUser = async (credentials) => {
   try {
-    const response = await api.post('/auth/login', credentials);
+    // בדיקה אם הסביבה היא Vercel או פיתוח
+    const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+    
+    // שימוש בנקודת קצה המתאימה בהתאם לסביבה
+    const endpoint = isVercel ? '/api/auth-login' : '/auth/login';
+    
+    console.log(`Using login endpoint: ${endpoint}`);
+    
+    const response = await api.post(endpoint, credentials);
     return response.data;
   } catch (error) {
     console.error('Error during login:', error);
