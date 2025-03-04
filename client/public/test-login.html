@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בדיקת התחברות למערכת ניהול המלון</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      direction: rtl;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      direction: ltr;
+      text-align: left;
+    }
+    .error {
+      color: red;
+      margin-top: 15px;
+    }
+    .success {
+      color: green;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>בדיקת התחברות</h1>
+    <p>דף זה מאפשר בדיקה ישירה של נקודת הקצה login</p>
+    
+    <div class="form-group">
+      <label for="email">אימייל:</label>
+      <input type="email" id="email" value="schwartzhezi@gmail.com">
+    </div>
+    
+    <div class="form-group">
+      <label for="password">סיסמה:</label>
+      <input type="password" id="password" value="111111">
+    </div>
+
+    <button id="loginBtn">התחבר</button>
+    <button id="testBtn" style="background-color: #2196F3; margin-top: 10px;">בדוק נקודת קצה</button>
+    
+    <div id="statusMessage"></div>
+    <div id="result" class="result" style="display: none;"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginBtn = document.getElementById('loginBtn');
+      const testBtn = document.getElementById('testBtn');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const resultDiv = document.getElementById('result');
+      const statusMessage = document.getElementById('statusMessage');
+      
+      // פונקציה להתחברות רגילה
+      loginBtn.addEventListener('click', async function() {
+        resultDiv.style.display = 'none';
+        statusMessage.innerHTML = '';
+        statusMessage.className = '';
+        
+        try {
+          statusMessage.innerHTML = 'מתחבר...';
+          
+          const credentials = {
+            email: emailInput.value,
+            password: passwordInput.value
+          };
+          
+          console.log('שולח בקשת התחברות:', credentials);
+          
+          // קביעת ה-URL של נקודת הקצה
+          const apiUrl = '/api/login';
+          
+          // שליחת בקשת POST
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(credentials)
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            statusMessage.innerHTML = 'התחברות הצליחה!';
+            statusMessage.className = 'success';
+          } else {
+            statusMessage.innerHTML = `שגיאה: ${data.message || 'אירעה שגיאה בהתחברות'}`;
+            statusMessage.className = 'error';
+          }
+          
+          // הצגת התוצאה
+          resultDiv.textContent = JSON.stringify(data, null, 2);
+          resultDiv.style.display = 'block';
+          
+        } catch (error) {
+          console.error('שגיאה בהתחברות:', error);
+          statusMessage.innerHTML = `שגיאה: ${error.message}`;
+          statusMessage.className = 'error';
+          
+          resultDiv.textContent = JSON.stringify({
+            error: error.message,
+            stack: error.stack
+          }, null, 2);
+          resultDiv.style.display = 'block';
+        }
+      });
+      
+      // פונקציה לבדיקת נקודת הקצה
+      testBtn.addEventListener('click', async function() {
+        resultDiv.style.display = 'none';
+        statusMessage.innerHTML = '';
+        statusMessage.className = '';
+        
+        try {
+          statusMessage.innerHTML = 'בודק...';
+          
+          // בדיקת HTTP OPTIONS
+          const optionsResponse = await fetch('/api/login', {
+            method: 'OPTIONS'
+          });
+          
+          const allowMethods = optionsResponse.headers.get('Access-Control-Allow-Methods') || 'לא מוגדר';
+          const allowOrigin = optionsResponse.headers.get('Access-Control-Allow-Origin') || 'לא מוגדר';
+          
+          // בדיקת HTTP GET - צפוי להיכשל ב-405
+          const getResponse = await fetch('/api/login', {
+            method: 'GET'
+          }).catch(err => ({ ok: false, status: err.message }));
+          
+          // שליחת POST ריק
+          const emptyPostResponse = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+          });
+          
+          const emptyPostData = await emptyPostResponse.json().catch(err => ({ error: err.message }));
+          
+          // הכנת תוצאות הבדיקה
+          const testResults = {
+            baseUrl: window.location.origin,
+            apiEndpoint: '/api/login',
+            browser: navigator.userAgent,
+            tests: {
+              options: {
+                status: optionsResponse.status,
+                allowMethods,
+                allowOrigin
+              },
+              get: {
+                result: getResponse.ok ? 'הצליח' : 'נכשל',
+                status: getResponse.status
+              },
+              emptyPost: {
+                status: emptyPostResponse.status,
+                data: emptyPostData
+              }
+            }
+          };
+          
+          statusMessage.innerHTML = 'בדיקת נקודת הקצה הושלמה';
+          resultDiv.textContent = JSON.stringify(testResults, null, 2);
+          resultDiv.style.display = 'block';
+          
+        } catch (error) {
+          console.error('שגיאה בבדיקה:', error);
+          statusMessage.innerHTML = `שגיאה: ${error.message}`;
+          statusMessage.className = 'error';
+          
+          resultDiv.textContent = JSON.stringify({
+            error: error.message,
+            stack: error.stack
+          }, null, 2);
+          resultDiv.style.display = 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html> 
