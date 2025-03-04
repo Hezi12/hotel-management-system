@@ -1,19 +1,36 @@
-import { useState, useEffect } from 'react';
-import BookingSearchForm from '../components/BookingSearchForm';
-import Layout from '../components/Layout';
 import Head from 'next/head';
 import Link from 'next/link';
-import { FaPhone, FaWhatsapp, FaMapMarkerAlt, FaComments } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import BookingSearchForm from '../components/BookingSearchForm';
+import { 
+  FaMapMarkerAlt, 
+  FaWhatsapp, 
+  FaPhone, 
+  FaRegMoneyBillAlt, 
+  FaBroom, 
+  FaCity,
+  FaWifi,
+  FaCalendarCheck,
+  FaSmile,
+  FaBed
+} from 'react-icons/fa';
 import Image from 'next/image';
-
-const phoneNumber = "0506070260";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const phoneNumber = "0506070260";
+
+  const amenities = [
+    { icon: <FaWifi />, text: "Wi-Fi חינם" },
+    { icon: <FaBed />, text: "מיטות נוחות" },
+    { icon: <FaBroom />, text: "ניקיון יומי" },
+    { icon: <FaCalendarCheck />, text: "הזמנה מיידית" }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
+      if (window.scrollY > 10) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -27,100 +44,188 @@ export default function Home() {
   return (
     <Layout hideFooter scrolled={scrolled}>
       <Head>
-        <title>רוטשילד 79 - חדרים להשכרה בפתח תקווה</title>
-        <meta 
-          name="description" 
-          content="חדרים להשכרה במיקום מעולה ברוטשילד פתח תקווה." 
-        />
+        <title>רוטשילד 79 - מלון חדרים במרכז פתח תקווה</title>
+        <meta name="description" content="מלון חדרים ברוטשילד 79, פתח תקווה" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="min-h-screen flex flex-col bg-slate-50">
-        <div className="flex-grow flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl mx-auto">
-            <div className="bg-white rounded-md shadow-sm overflow-hidden">
-              <div className="p-6 md:p-8">
-                <h1 className="text-2xl font-medium text-slate-800 mb-1">רוטשילד 79</h1>
-                <p className="text-slate-500 mb-2">חדרים להשכרה במרכז פתח תקווה</p>
-                
-                {/* כפתורי יצירת קשר קטנים */}
-                <div className="flex gap-2 mb-4">
+      <main className="flex-grow">
+        {/* Hero Section - מינימליסטי */}
+        <section className="bg-slate-50 py-24">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex flex-col items-center text-center mb-12">
+                <h1 className="text-5xl md:text-6xl font-light text-slate-800 mb-6">רוטשילד 79</h1>
+                <div className="h-px w-16 bg-primary-500 mb-6"></div>
+                <p className="text-xl md:text-2xl font-light text-slate-600 mb-8 max-w-2xl">
+                  מלון חדרים אלגנטי במרכז פתח תקווה
+                </p>
+                <div className="flex items-center text-sm text-slate-500 mb-10">
+                  <FaMapMarkerAlt className="ml-1" />
                   <Link
-                    href={`https://wa.me/972${phoneNumber.substring(1)}`}
+                    href="https://www.google.com/maps/search/?api=1&query=רוטשילד+79+פתח+תקווה"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-3 py-1.5 text-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-sm transition-all"
+                    className="hover:text-primary-600 transition-colors"
                   >
-                    <FaWhatsapp className="ml-1.5 text-xs" />
-                    <span>וואטסאפ</span>
-                  </Link>
-                  <Link
-                    href={`tel:${phoneNumber}`}
-                    className="inline-flex items-center px-3 py-1.5 text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-sm transition-all"
-                  >
-                    <FaPhone className="ml-1.5 text-xs" />
-                    <span>{phoneNumber}</span>
+                    רוטשילד 79, פתח תקווה
                   </Link>
                 </div>
-                
-                <div className="border-t border-slate-100 my-4"></div>
-                
-                <div className="mb-8">
-                  <BookingSearchForm />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* חיפוש והזמנה */}
+        <section className="py-16 bg-white border-t border-b border-slate-100">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-2xl font-light text-slate-800 mb-8 text-center">בדיקת זמינות וביצוע הזמנה</h2>
+              <BookingSearchForm />
+              
+              <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4">
+                <Link
+                  href={`tel:${phoneNumber}`}
+                  className="w-full md:w-auto inline-flex items-center justify-center text-primary-600 hover:text-primary-700 border border-primary-600 hover:border-primary-700 transition-colors py-3 px-6 rounded-none"
+                >
+                  <FaPhone className="ml-2" />
+                  <span>צור קשר טלפוני: {phoneNumber}</span>
+                </Link>
+                <Link
+                  href={`https://wa.me/972${phoneNumber.substring(1)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full md:w-auto inline-flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-none"
+                >
+                  <FaWhatsapp className="ml-2" />
+                  <span>שלח הודעת וואטסאפ</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* אמניטיז */}
+        <section className="py-16 bg-slate-50">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {amenities.map((item, index) => (
+                <div key={index} className="flex flex-col items-center text-center p-6">
+                  <div className="text-primary-500 text-2xl mb-3">{item.icon}</div>
+                  <div className="text-slate-700">{item.text}</div>
                 </div>
-                
-                {/* מפת גוגל */}
-                <div className="border-t border-slate-100 py-6 mb-4">
-                  <div className="flex items-center mb-2">
-                    <FaMapMarkerAlt className="text-slate-400 ml-2" />
-                    <h3 className="text-sm font-medium text-slate-600">המיקום שלנו</h3>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* חדרים */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-3xl font-light text-slate-800 mb-3 text-center">החדרים שלנו</h2>
+              <p className="text-center text-slate-600 mb-10 max-w-2xl mx-auto">חדרים מעוצבים בסגנון מינימליסטי ונוח, מאובזרים בכל מה שצריך לשהייה מושלמת</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-slate-50 aspect-video relative overflow-hidden group">
+                  <div className="absolute inset-0">
+                    <Image 
+                      src="/images/room1.jpg" 
+                      alt="חדר זוגי"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
                   </div>
-                  <div className="rounded-md overflow-hidden h-44 relative bg-slate-100">
-                    <iframe 
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3380.636822430453!2d34.88659!3d32.09105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151d4a453ed98cb1%3A0xf7ac36318a2558d5!2z16jXldeY16nXmdeZ15zXkyA3OSwg16TXqteXINeq16fXldeV15Q!5e0!3m2!1siw!2sil!4v1715023454321!5m2!1siw!2sil&markers=color:red%7C32.09105,34.88659" 
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      allowFullScreen="" 
-                      loading="lazy" 
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="מפת המיקום"
-                    ></iframe>
+                  <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform">
+                    <h3 className="font-medium text-slate-900 mb-1">חדר זוגי</h3>
+                    <p className="text-sm text-slate-600">חדר מרווח עם מיטה זוגית ומקלחת פרטית</p>
                   </div>
                 </div>
-                
-                <div className="border-t border-slate-100 pt-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-center">
-                    <div className="mb-3 sm:mb-0">
-                      <p className="text-slate-500 text-sm">צריכים עזרה? צרו קשר:</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <p className="text-slate-700 text-sm">
-                        <span className="font-medium">טלפון: </span>
-                        <Link href={`tel:${phoneNumber}`} className="text-blue-600 hover:underline">
-                          {phoneNumber}
-                        </Link>
-                      </p>
-                      <span className="text-slate-300">|</span>
-                      <p className="text-slate-700 text-sm">
-                        <span className="font-medium">דוא"ל: </span>
-                        <Link href="mailto:diamshotels@gmail.com" className="text-blue-600 hover:underline">
-                          diamshotels@gmail.com
-                        </Link>
-                      </p>
-                    </div>
+                <div className="bg-slate-50 aspect-video relative overflow-hidden group">
+                  <div className="absolute inset-0">
+                    <Image 
+                      src="/images/room2.jpg" 
+                      alt="סוויטה משפחתית"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform">
+                    <h3 className="font-medium text-slate-900 mb-1">סוויטה משפחתית</h3>
+                    <p className="text-sm text-slate-600">חדר מרווח עם מיטה זוגית, ספה נפתחת ומקלחת פרטית</p>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div className="mt-4 text-center">
-              <p className="text-sm text-slate-500">
-                מיקום: רוטשילד 79, פתח תקווה
+          </div>
+        </section>
+        
+        {/* יתרונות המיקום */}
+        <section className="py-16 bg-slate-50">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-3xl font-light text-slate-800 mb-3 text-center">המיקום שלנו</h2>
+              <p className="text-center text-slate-600 mb-10 max-w-2xl mx-auto">
+                ממוקם במרכז פתח תקווה, מרחק הליכה קצר מכל האטרקציות המרכזיות ואמצעי התחבורה
               </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-6 border border-slate-200 bg-white">
+                  <div className="flex items-center mb-3">
+                    <FaCity className="text-primary-500 ml-2" />
+                    <h3 className="font-medium text-slate-800">מיקום מרכזי</h3>
+                  </div>
+                  <p className="text-slate-600 text-sm">
+                    במרכז העיר, קרוב לחנויות, מסעדות ואטרקציות
+                  </p>
+                </div>
+                <div className="p-6 border border-slate-200 bg-white">
+                  <div className="flex items-center mb-3">
+                    <FaRegMoneyBillAlt className="text-primary-500 ml-2" />
+                    <h3 className="font-medium text-slate-800">שווה לכסף</h3>
+                  </div>
+                  <p className="text-slate-600 text-sm">
+                    איכות גבוהה במחיר הוגן ללא תוספות מיותרות
+                  </p>
+                </div>
+                <div className="p-6 border border-slate-200 bg-white">
+                  <div className="flex items-center mb-3">
+                    <FaSmile className="text-primary-500 ml-2" />
+                    <h3 className="font-medium text-slate-800">יחס אישי</h3>
+                  </div>
+                  <p className="text-slate-600 text-sm">
+                    צוות אדיב ומקצועי שדואג לכל הצרכים שלכם
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+        
+        {/* CTA */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="max-w-2xl mx-auto text-center">
+              <h2 className="text-2xl font-light text-slate-800 mb-6">מחכים לכם ברוטשילד 79</h2>
+              <Link
+                href="#booking"
+                className="inline-block bg-primary-600 hover:bg-primary-700 text-white py-3 px-8 transition-colors"
+              >
+                להזמנת חדר
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
+      
+      {/* פתרון לחלון הצ'אט */}
+      <style jsx global>{`
+        .chat-widget {
+          z-index: 100;
+        }
+      `}</style>
     </Layout>
   );
-} 
+}

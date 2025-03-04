@@ -9,7 +9,7 @@ const nextConfig = {
     localeDetection: true,
   },
   images: {
-    domains: ['localhost', 'placehold.co', 'vercel.app'], // תחומים מורשים לתמונות
+    domains: ['localhost', 'placehold.co', 'vercel.app', 'maps.googleapis.com'], // תחומים מורשים לתמונות
     remotePatterns: [
       {
         protocol: 'https',
@@ -18,6 +18,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'maps.googleapis.com',
       },
     ],
   },
@@ -51,7 +55,7 @@ const nextConfig = {
   // הוספת אפשרות להציג תמונות SVG
   dangerouslyAllowSVG: true,
   // מאפשר להציג תמונות מאתר placehold.co ומאפשר חיבור ל-localhost:5001
-  contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; frame-src 'self'",
+  contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; frame-src 'self' https://www.google.com *.google.com;",
 };
 
 module.exports = nextConfig; 

@@ -206,7 +206,7 @@ const VirtualChat = () => {
         
         {/* התראת צ'אט שקופצת */}
         {showChatHint && (
-          <div className="absolute top-0 right-0 transform -translate-y-full translate-x-1/4 bg-white p-3 rounded-lg shadow-xl animate-bounce-once mb-4 w-64">
+          <div className="absolute top-0 right-0 transform -translate-y-full -translate-x-1/4 bg-white p-3 rounded-lg shadow-xl animate-bounce-once mb-4 w-64 text-right">
             <div className="absolute bottom-0 right-8 transform translate-y-1/2 rotate-45 w-4 h-4 bg-white"></div>
             <p className="text-slate-800 text-sm font-medium">שלום! אפשר לעזור לך במשהו?</p>
             <p className="text-slate-600 text-xs mt-1">הנציג הווירטואלי שלנו זמין 24/7</p>
