@@ -1,0 +1,17 @@
+{
+  "name": "hotel-management-system",
+  "version": "1.0.0",
+  "description": "מערכת מקיפה לניהול מלון",
+  "scripts": {
+    "install": "cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd client && npm start"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "author": "Hezi12",
+  "license": "ISC"
+} 
