@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { connectToDatabase } = require('../utils/mongodb');
 
 // התחברות למסד הנתונים
 const connectDB = async () => {
@@ -82,91 +83,116 @@ UserSchema.pre('save', async function (next) {
 // מודל המשתמש (אם לא קיים עדיין)
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
+// משתנה סביבה לסוד ה-JWT
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_for_development';
+
+/**
+ * פונקציית עזר להדפסת פרטי בקשה לצורכי דיבוג
+ */
+function logRequestDetails(req) {
+  console.log('==== נכנסה בקשה לנקודת הקצה login ====');
+  console.log('Method:', req.method);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  console.log('URL:', req.url);
+  console.log('Path:', req.path || 'N/A');
+  console.log('IP:', req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+  console.log('=============================================');
+}
+
 module.exports = async (req, res) => {
-  // רק בקשות POST
+  // מדפיס את פרטי הבקשה לצורכי דיבוג
+  logRequestDetails(req);
+
+  // טיפול בבקשות OPTIONS עבור CORS
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(200).end();
+  }
+
+  // רק בקשות POST מורשות לנקודת קצה זו
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      success: false, 
-      msg: 'שיטה לא מאושרת. יש להשתמש ב-POST'
+    return res.status(405).json({
+      success: false,
+      message: `שיטת HTTP ${req.method} אינה נתמכת. אנא השתמש ב-POST.`,
+      requestInfo: {
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        timestamp: new Date().toISOString()
+      }
     });
   }
 
   try {
-    // התחברות למסד הנתונים
-    await connectDB();
+    // חיבור למסד הנתונים
+    const { db } = await connectToDatabase();
+    const users = db.collection('users');
 
     const { email, password } = req.body;
 
-    console.log('קיבל בקשת התחברות עם אימייל:', email);
-
-    // בדיקה שהנתונים תקינים
+    // וידוא שכל השדות הנדרשים התקבלו
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        msg: 'נא לספק אימייל וסיסמה'
+      return res.status(400).json({
+        success: false,
+        message: 'אנא ספק אימייל וסיסמה'
       });
     }
+
+    // חיפוש המשתמש לפי אימייל
+    const user = await users.findOne({ email });
 
     // בדיקה אם המשתמש קיים
-    let user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(400).json({ 
-        success: false, 
-        msg: 'פרטי התחברות שגויים'
+      console.log(`User not found: ${email}`);
+      return res.status(401).json({
+        success: false,
+        message: 'פרטי התחברות שגויים'
       });
     }
 
-    // בדיקה אם המשתמש פעיל
-    if (!user.isActive) {
-      return res.status(401).json({ 
-        success: false, 
-        msg: 'חשבון משתמש זה אינו פעיל'
-      });
-    }
+    // השוואת הסיסמה
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    // בדיקת התאמת סיסמה
-    const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(400).json({ 
-        success: false, 
-        msg: 'פרטי התחברות שגויים'
+      console.log(`Password mismatch for user: ${email}`);
+      return res.status(401).json({
+        success: false,
+        message: 'פרטי התחברות שגויים'
       });
     }
-
-    // עדכון זמן התחברות אחרון
-    await User.findByIdAndUpdate(user._id, { lastLogin: Date.now() });
 
     // יצירת טוקן JWT
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role
-      }
-    };
-
     const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '30d' }
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
     );
 
-    // החזרת המידע למשתמש
+    // מחזיר תשובה מוצלחת עם הטוקן ופרטי המשתמש
+    console.log(`User logged in successfully: ${email}`);
     return res.status(200).json({
       success: true,
       token,
       user: {
-        id: user._id,
+        _id: user._id,
+        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
         role: user.role
       }
     });
   } catch (error) {
-    console.error('שגיאה בהתחברות:', error);
+    console.error('Error in login process:', error);
     return res.status(500).json({
       success: false,
-      msg: 'שגיאת שרת בעת התחברות',
+      message: 'שגיאת שרת פנימית',
       error: error.message
     });
   }

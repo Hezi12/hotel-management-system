@@ -511,15 +511,31 @@ export const loginUser = async (credentials) => {
     // בדיקה אם הסביבה היא Vercel או פיתוח
     const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
     
-    // הסרת ה-/api המיותר מהנתיב כי baseURL כבר מכיל אותו
+    // קביעת נתיב נכון להתחברות
     const endpoint = isVercel ? 'login' : 'auth/login';
     
     console.log(`Using login endpoint: ${endpoint}`);
+    console.log('Credentials:', JSON.stringify(credentials));
+    console.log('API baseURL:', api.defaults.baseURL);
     
-    const response = await api.post(endpoint, credentials);
+    // קביעת הפרמטרים של הבקשה באופן מפורש
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    // שליחת הבקשה עם פרמטרים מפורשים
+    const response = await api.post(endpoint, credentials, config);
+    console.log('Login response:', response.status);
     return response.data;
   } catch (error) {
     console.error('Error during login:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
     throw error;
   }
 };
