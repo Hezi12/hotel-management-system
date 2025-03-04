@@ -12,6 +12,10 @@
       "memory": 1024,
       "maxDuration": 10
     },
+    "api/test-login.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
     "api/create-admin.js": {
       "memory": 1024,
       "maxDuration": 10

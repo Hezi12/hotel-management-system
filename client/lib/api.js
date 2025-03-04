@@ -511,8 +511,8 @@ export const loginUser = async (credentials) => {
     // בדיקה אם הסביבה היא Vercel או פיתוח
     const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
     
-    // שימוש בנקודת קצה פשוטה יותר
-    const endpoint = isVercel ? 'login' : 'auth/login';
+    // שימוש בנתיב מלא
+    const endpoint = isVercel ? '/api/login' : '/api/auth/login';
     
     console.log(`Using login endpoint: ${endpoint}`);
     
@@ -811,6 +811,29 @@ export const updateBookingPaymentStatus = async (id, status) => {
     }
     
     handleApiError(error);
+  }
+};
+
+// פונקציית בדיקה לנקודת קצה
+export const testApiEndpoint = async (endpointPath) => {
+  try {
+    console.log(`בודק נקודת קצה: ${endpointPath}`);
+    
+    const response = await api.post(endpointPath, {
+      test: true,
+      timestamp: new Date().toISOString()
+    });
+    
+    console.log('תוצאת בדיקה:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`שגיאה בבדיקת ${endpointPath}:`, error);
+    return {
+      success: false,
+      error: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    };
   }
 };
 
