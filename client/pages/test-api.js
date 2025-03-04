@@ -3,15 +3,15 @@ import { Container, Typography, Button, TextField, Box, Paper, Grid } from '@mui
 import { testApiEndpoint } from '../lib/api';
 
 export default function TestApi() {
-  const [endpoint, setEndpoint] = useState('/api/test-login');
+  const [endpoint, setEndpoint] = useState('test-login');
   const [method, setMethod] = useState('POST');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   
   const predefinedEndpoints = [
-    '/api/test-login',
-    '/api/login',
-    '/api/create-admin'
+    'test-login',
+    'login',
+    'create-admin'
   ];
 
   const handleTest = async () => {
