@@ -508,34 +508,41 @@ export const performCheckOut = async (bookingId) => {
 // פונקציות API לאימות
 export const loginUser = async (credentials) => {
   try {
-    // בדיקה אם הסביבה היא Vercel או פיתוח
-    const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
-    
-    // קביעת נתיב נכון להתחברות
-    const endpoint = isVercel ? 'login' : 'auth/login';
-    
-    console.log(`Using login endpoint: ${endpoint}`);
-    console.log('Credentials:', JSON.stringify(credentials));
+    console.log('התחלת תהליך התחברות עם', credentials);
     console.log('API baseURL:', api.defaults.baseURL);
     
-    // קביעת הפרמטרים של הבקשה באופן מפורש
+    // בניית הבקשה באופן ברור
     const config = {
       headers: {
         'Content-Type': 'application/json'
       }
     };
     
-    // שליחת הבקשה עם פרמטרים מפורשים
-    const response = await api.post(endpoint, credentials, config);
-    console.log('Login response:', response.status);
-    return response.data;
+    // שימוש בנתיב אחיד ללא תלות בסביבה
+    const response = await api.post('/login', credentials, config);
+    
+    console.log('תשובה מהשרת:', response.status);
+    
+    if (response.data) {
+      console.log('נתונים התקבלו בהצלחה');
+      return response.data;
+    } else {
+      throw new Error('לא התקבלו נתונים מהשרת');
+    }
   } catch (error) {
-    console.error('Error during login:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      response: error.response?.data
-    });
+    console.error('שגיאה בהתחברות:', error.message);
+    
+    // מידע מפורט יותר על השגיאה
+    if (error.response) {
+      console.error('פרטי שגיאה:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    } else if (error.request) {
+      console.error('הבקשה נשלחה אך לא התקבלה תשובה:', error.request);
+    }
+    
     throw error;
   }
 };

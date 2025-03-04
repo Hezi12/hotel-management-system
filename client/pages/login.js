@@ -6,15 +6,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { HiOutlineLogin, HiOutlineMail, HiOutlineLockClosed } from 'react-icons/hi';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('schwartzhezi@gmail.com');
+  const [password, setPassword] = useState('111111');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
   
-  // אם המשתמש כבר מחובר, הפנייה לדף הבית או לדף שממנו הגיע
   useEffect(() => {
     if (isAuthenticated) {
       const redirectPath = router.query.redirect || '/';
@@ -27,21 +26,23 @@ const Login = () => {
     
     if (isLoading) return;
     
+    console.log('מנסה להתחבר עם:', { email, password });
+    
     setError('');
     setIsLoading(true);
     
     try {
-      // ניסיון התחברות
       const success = await login(email, password);
       
+      console.log('תוצאת התחברות:', success);
+      
       if (success) {
-        // הפניה לדף הבית או לדף שממנו המשתמש הגיע
         const redirectPath = router.query.redirect || '/';
         router.push(redirectPath);
       }
     } catch (error) {
+      console.error('שגיאה בהתחברות:', error);
       setError('אירעה שגיאה בהתחברות. נסה שוב מאוחר יותר.');
-      console.error('Error during login:', error);
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +67,6 @@ const Login = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-custom sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* שדה אימייל */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-primary-700">
                 דוא"ל
@@ -88,7 +88,6 @@ const Login = () => {
               </div>
             </div>
             
-            {/* שדה סיסמה */}
             <div>
               <div className="flex justify-between">
                 <label htmlFor="password" className="block text-sm font-medium text-primary-700">
@@ -115,14 +114,12 @@ const Login = () => {
               </div>
             </div>
             
-            {/* הצגת שגיאה */}
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {error}
               </div>
             )}
             
-            {/* כפתור התחברות */}
             <div>
               <button
                 type="submit"
