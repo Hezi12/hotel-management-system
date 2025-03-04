@@ -511,8 +511,8 @@ export const loginUser = async (credentials) => {
     // בדיקה אם הסביבה היא Vercel או פיתוח
     const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
     
-    // שימוש בנקודת קצה המתאימה בהתאם לסביבה
-    const endpoint = isVercel ? '/api/auth-login' : '/auth/login';
+    // שימוש בנקודת קצה המתאימה בהתאם לסביבה, ללא הקידומת api/ שכבר נמצאת ב-baseURL
+    const endpoint = isVercel ? 'auth-login' : 'auth/login';
     
     console.log(`Using login endpoint: ${endpoint}`);
     
