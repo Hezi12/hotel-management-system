@@ -444,7 +444,7 @@ const BookingDetailsModal = ({ booking, room, isOpen, onClose, onBookingUpdated 
                   <h4 className="font-medium text-gray-700">פרטי תשלום</h4>
                 </div>
                 
-                <div className="flex items-center">
+        <div className="flex items-center">
                   <p className="text-sm text-gray-600 ml-2">
                     סכום כולל: ₪{booking.totalPrice.toLocaleString()}
                   </p>
@@ -552,7 +552,7 @@ const BookingDetailsModal = ({ booking, room, isOpen, onClose, onBookingUpdated 
                 <h4 className="text-sm font-medium mb-2">תיעוד תשלום</h4>
                 <div className="mb-2">
                   <label className="block text-xs font-medium text-gray-700 mb-1">סכום</label>
-                  <input
+            <input
                     type="number"
                     min="0"
                     value={paymentAmount}
