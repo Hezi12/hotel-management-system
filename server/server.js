@@ -12,9 +12,23 @@ const connectDB = require('./config/db');
 // יצירת יישום Express
 const app = express();
 
+// CORS middleware עם אפשרויות להגדיר מקורות מורשים
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'https://hotel-management-system-weld-nine.vercel.app',
+    'https://hotel-management-system-server.onrender.com'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+  credentials: true
+};
+
 // Middleware
 app.use(express.json({ extended: false }));
-app.use(cors());
+app.use(cors(corsOptions));
 
 // חיבור למסד הנתונים רק אם לא נמצאים בסביבת Vercel או שזו לא קריאה מהמודול
 if (process.env.NODE_ENV !== 'vercel' && !process.env.VERCEL) {
