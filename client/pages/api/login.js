@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 export default function handler(req, res) {
   // הוספת כותרות CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,6 +31,17 @@ export default function handler(req, res) {
 
     // בדיקה האם הפרטים תואמים למשתמש הניסיון שלנו
     if (email === 'schwartzhezi@gmail.com' && password === '111111') {
+      // יצירת token JWT תקין
+      const token = jwt.sign(
+        { 
+          id: '1',
+          email: 'schwartzhezi@gmail.com',
+          role: 'admin'
+        }, 
+        process.env.JWT_SECRET || '7ff9d18b4326e9afa74dd8bc3b0a03b4c8a66e09',
+        { expiresIn: '1d' }
+      );
+      
       // התחברות הצליחה!
       return res.status(200).json({
         success: true,
@@ -38,7 +51,7 @@ export default function handler(req, res) {
           email: 'schwartzhezi@gmail.com',
           role: 'admin'
         },
-        token: 'demo_token_12345'
+        token
       });
     } else {
       // התחברות נכשלה

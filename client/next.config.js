@@ -6,27 +6,26 @@ const nextConfig = {
     // הגדרות אינטרנציונליזציה
     locales: ['he'],
     defaultLocale: 'he',
-    // מחיקת השדה localeDetection שגורם לשגיאה
+    localeDetection: false,
   },
   images: {
-    // השימוש ב-domains מיושן, אבל נשאיר אותו כרגע לתאימות לאחור
-    domains: ['localhost', 'placehold.co', 'vercel.app', 'images.unsplash.com'],
-    // השימוש המומלץ הוא remotePatterns
     remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
       {
         protocol: 'https',
         hostname: 'placehold.co',
       },
       {
         protocol: 'https',
-        hostname: 'vercel.app',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
+        hostname: '**',
+      }
     ],
-    // הסרנו את dangerouslyAllowSVG ו-contentSecurityPolicy שגורמים לשגיאה
+    formats: ['image/avif', 'image/webp'],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   env: {
     // משתני סביבה שיהיו זמינים לקוד הלקוח
@@ -40,9 +39,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.VERCEL
-          ? '/api/:path*'  // בסביבת Vercel, מפנה לפונקציית ה-API שלנו
-          : 'http://localhost:5001/api/:path*', // בסביבת פיתוח, מפנה לשרת המקומי
+        destination: 'http://localhost:5001/api/:path*',
       },
     ];
   },
@@ -50,7 +47,7 @@ const nextConfig = {
     // תמיכה ב-SVG כקומפוננטות
     config.module.rules.push({
       test: /\.svg$/,
-      use: ["@svgr/webpack"]
+      use: ['@svgr/webpack'],
     });
 
     return config;
