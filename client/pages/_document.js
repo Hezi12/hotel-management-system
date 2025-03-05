@@ -2,7 +2,7 @@ import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
   return (
-    <Html dir="rtl" lang="he">
+    <Html dir="rtl" lang="he" className="h-full">
       <Head>
         <meta charSet="utf-8" />
         <link rel="icon" href="/favicon.ico" />
@@ -15,8 +15,11 @@ export default function Document() {
         <meta httpEquiv="X-Frame-Options" content="DENY" />
         <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        
+        {/* הוספת הגופנים דרך Document במקום ב-Head */}
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" />
       </Head>
-      <body className="font-heebo bg-gray-50 text-gray-900">
+      <body className="font-heebo bg-gray-50 text-gray-900 h-full">
         <Main />
         <NextScript />
       </body>
