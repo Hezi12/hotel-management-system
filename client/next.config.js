@@ -6,6 +6,7 @@ const nextConfig = {
     // הגדרות אינטרנציונליזציה
     locales: ['he'],
     defaultLocale: 'he',
+    localeDetection: false,
   },
   images: {
     remotePatterns: [
@@ -19,7 +20,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'hotel-management-system-server.onrender.com',
       }
     ],
     formats: ['image/avif', 'image/webp'],
