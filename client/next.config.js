@@ -6,7 +6,6 @@ const nextConfig = {
     // הגדרות אינטרנציונליזציה
     locales: ['he'],
     defaultLocale: 'he',
-    localeDetection: true,
   },
   images: {
     remotePatterns: [
@@ -24,8 +23,6 @@ const nextConfig = {
       }
     ],
     formats: ['image/avif', 'image/webp'],
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   env: {
     // משתני סביבה שיהיו זמינים לקוד הלקוח
