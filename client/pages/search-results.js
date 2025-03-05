@@ -19,6 +19,7 @@ import {
 } from 'react-icons/hi';
 import { format, addDays, differenceInDays, parseISO } from 'date-fns';
 import he from 'date-fns/locale/he';
+import Image from 'next/image';
 
 const SearchResultsPage = () => {
   const router = useRouter();
@@ -204,7 +205,7 @@ const SearchResultsPage = () => {
         // טעינת החדרים מהלוקל סטורג' בדיוק כפי שהם נשמרו
         const parsedRooms = JSON.parse(storedRooms);
         
-        // החזרת החדרים כפי שהם
+        // החזרת החדרים כפי שהם, בלי לשנות את התמונות המקוריות
         return parsedRooms;
       }
     } catch (error) {
@@ -222,7 +223,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+זוגי+1"
       },
       {
         _id: '6',
@@ -234,7 +235,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון', 'טלוויזיה'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+משפחתי+6"
       },
       {
         _id: '13',
@@ -246,7 +247,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון', 'פינת ישיבה'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1586105251261-72a756497a11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+משפחתי+13"
       },
       {
         _id: '17',
@@ -258,7 +259,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון', 'טלוויזיה', 'פינת ישיבה'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1576675784201-0e142b423952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+זוגי+פלוס+17"
       },
       {
         _id: '21',
@@ -270,7 +271,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון', 'ג׳קוזי', 'סלון נפרד'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1591088398332-8a7791972843?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=סוויטה+21"
       },
       {
         _id: '3',
@@ -282,7 +283,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+זוגי+3"
       },
       {
         _id: '4',
@@ -294,7 +295,7 @@ const SearchResultsPage = () => {
         isActive: true,
         amenities: ['Wi-Fi', 'מקלחת', 'מיזוג אוויר', 'מטבחון'],
         images: [],
-        mainImage: "https://images.unsplash.com/photo-1625244724120-1fd1d34d00f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        mainImage: "https://placehold.co/800x600/e0e0e0/939393?text=חדר+זוגי+4"
       }
     ];
   };
@@ -545,15 +546,18 @@ const SearchResultsPage = () => {
                     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
                       <div className="grid md:grid-cols-2">
                         <div className="relative w-full h-48 mb-4 rounded-md overflow-hidden">
-                          {room.mainImage ? (
+                          {/* גלריית תמונות */}
+                          {(room.images && room.images.length > 0) ? (
                             <div className="relative w-full h-full image-gallery">
-                              <img
-                                src={room.mainImage}
+                              <Image
+                                src={room.images[0]}
                                 alt={`חדר ${room.roomNumber}`}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                className="object-cover hover:scale-105 transition-transform"
                               />
                               
-                              {room.images && room.images.length > 0 && (
+                              {room.images.length > 1 && (
                                 <div className="absolute bottom-0 left-0 right-0 flex justify-center p-2 bg-black bg-opacity-40">
                                   <div className="flex space-x-1">
                                     <button 
@@ -562,8 +566,8 @@ const SearchResultsPage = () => {
                                         e.stopPropagation();
                                         const currentImageEl = e.currentTarget.closest('.image-gallery').querySelector('img');
                                         const currentSrc = currentImageEl.src;
-                                        const allImages = [room.mainImage, ...(room.images.filter(img => img !== room.mainImage))];
-                                        const currentIndex = allImages.indexOf(currentSrc);
+                                        const allImages = [...room.images];
+                                        const currentIndex = allImages.findIndex(img => img === currentSrc || currentSrc.includes(encodeURIComponent(img)));
                                         const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
                                         currentImageEl.src = allImages[prevIndex];
                                       }}
@@ -576,8 +580,8 @@ const SearchResultsPage = () => {
                                         e.stopPropagation();
                                         const currentImageEl = e.currentTarget.closest('.image-gallery').querySelector('img');
                                         const currentSrc = currentImageEl.src;
-                                        const allImages = [room.mainImage, ...(room.images.filter(img => img !== room.mainImage))];
-                                        const currentIndex = allImages.indexOf(currentSrc);
+                                        const allImages = [...room.images];
+                                        const currentIndex = allImages.findIndex(img => img === currentSrc || currentSrc.includes(encodeURIComponent(img)));
                                         const nextIndex = (currentIndex + 1) % allImages.length;
                                         currentImageEl.src = allImages[nextIndex];
                                       }}
@@ -588,12 +592,20 @@ const SearchResultsPage = () => {
                                 </div>
                               )}
                             </div>
+                          ) : room.mainImage ? (
+                            <div className="relative w-full h-full image-gallery">
+                              <Image
+                                src={room.mainImage}
+                                alt={`חדר ${room.roomNumber}`}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                className="object-cover hover:scale-105 transition-transform"
+                              />
+                            </div>
                           ) : (
-                            <img
-                              src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"
-                              alt={`חדר ${room.roomNumber}`}
-                              className="w-full h-full object-cover"
-                            />
+                            <div className="bg-gray-200 h-48 rounded-t-lg flex items-center justify-center">
+                              <span className="text-gray-500">אין תמונה</span>
+                            </div>
                           )}
                           <div className="absolute top-2 left-2 bg-white bg-opacity-90 px-3 py-1 rounded-full shadow-md">
                             <span className="text-lg font-bold text-accent">{room.pricePerNight} ₪</span>

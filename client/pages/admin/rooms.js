@@ -319,28 +319,40 @@ const RoomsManagement = () => {
     try {
       const newImages = [];
       
-      // שמירת התמונות כ-Base64 כדי שיהיו נגישות גם לאחר רענון
+      // עיבוד התמונות שנבחרו
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const base64Promise = new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
         
-        const base64String = await base64Promise;
-        newImages.push(base64String);
+        // וידוא שזה קובץ תמונה
+        if (!file.type.startsWith('image/')) {
+          alert(`הקובץ ${file.name} אינו תמונה ולכן דולג.`);
+          continue;
+        }
+        
+        // המרת התמונה ל-Base64
+        const base64 = await convertToBase64(file);
+        newImages.push(base64);
       }
       
-      // עדכון החדר עם התמונות החדשות
+      if (newImages.length === 0) {
+        alert('לא נמצאו תמונות תקינות להעלאה');
+        return;
+      }
+      
       let updatedRoom = null;
+      
+      // עדכון מערך החדרים
       const updatedRooms = rooms.map(room => {
         if (room._id === roomId) {
-          const allImages = [...(room.images || []), ...newImages];
+          // עיבוד התמונות הקיימות והחדשות
+          const allImages = [...newImages, ...(room.images || [])];
+          
+          // שימוש בתמונה הראשונה מהחדשות כתמונה ראשית אם מעלים תמונות חדשות
           updatedRoom = {
             ...room,
             images: allImages,
-            mainImage: room.mainImage || newImages[0] // אם אין תמונה ראשית, נגדיר את הראשונה כראשית
+            // כאשר מעלים תמונות חדשות, התמונה הראשונה מהן תהיה התמונה הראשית
+            mainImage: newImages[0]
           };
           return updatedRoom;
         }
@@ -444,43 +456,13 @@ const RoomsManagement = () => {
     localStorage.setItem('hotelRooms', JSON.stringify(updatedRooms));
   };
   
-  // פונקציה להגדרת תמונה מספריית התמונות המובנית
-  const setDefaultImage = (roomId, imageUrl) => {
-    let updatedRoom = null;
-    const updatedRooms = rooms.map(room => {
-      if (room._id === roomId) {
-        updatedRoom = {
-          ...room,
-          mainImage: imageUrl,
-          // הוספת התמונה גם למערך התמונות אם היא לא קיימת שם
-          images: room.images.includes(imageUrl) ? room.images : [...room.images, imageUrl]
-        };
-        return updatedRoom;
-      }
-      return room;
-    });
-    
-    setRooms(updatedRooms);
-    
-    // עדכון גם את החדר הנוכחי במודאל ניהול התמונות אם זה אותו חדר
-    if (currentRoomForImages && currentRoomForImages._id === roomId) {
-      setCurrentRoomForImages(updatedRoom);
-    }
-    
-    setUnsavedChanges(true);
-    
-    // שמירה אוטומטית ל-localStorage
-    localStorage.setItem('hotelRooms', JSON.stringify(updatedRooms));
-
-    // הודעה למשתמש
-    alert('התמונה הוגדרה בהצלחה כתמונה ראשית לחדר!');
-  };
-
+  // פונקציה לפתיחת מנהל התמונות
   const openImageManager = (room) => {
     setCurrentRoomForImages(room);
     setShowImageManager(true);
   };
-
+  
+  // פונקציה לסגירת מנהל התמונות
   const closeImageManager = () => {
     setShowImageManager(false);
     setCurrentRoomForImages(null);
@@ -496,6 +478,16 @@ const RoomsManagement = () => {
       }
     }
   }, [rooms]);
+  
+  // פונקציה להמרת קובץ ל-Base64
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
   
   return (
     <Layout>
@@ -867,8 +859,18 @@ const RoomsManagement = () => {
               </button>
             </div>
 
+            <div className="mb-6 p-4 bg-gray-50 rounded border border-gray-200">
+              <h3 className="text-md font-medium mb-2 text-gray-700">הנחיות:</h3>
+              <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                <li>העלה תמונות ספציפיות לחדר זה בלבד</li>
+                <li>התמונה המסומנת במסגרת צבעונית היא התמונה הראשית שתופיע בדף הראשי ובחיפוש</li>
+                <li>לחץ על "הגדר כראשית" כדי לשנות את התמונה הראשית</li>
+                <li>מומלץ להעלות תמונות באיכות טובה וביחס גובה-רוחב אחיד</li>
+              </ul>
+            </div>
+
             <div className="mb-6">
-              <h3 className="text-lg font-medium mb-3">תמונות נוכחיות</h3>
+              <h3 className="text-lg font-medium mb-3">תמונות חדר {currentRoomForImages.roomNumber}</h3>
               {currentRoomForImages.images && currentRoomForImages.images.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
                   {currentRoomForImages.images.map((imageUrl, index) => (
@@ -876,14 +878,14 @@ const RoomsManagement = () => {
                       <img 
                         src={imageUrl} 
                         alt={`תמונה ${index + 1}`} 
-                        className={`w-full h-40 object-cover rounded ${currentRoomForImages.mainImage === imageUrl ? 'border-4 border-accent' : 'border border-gray-200'}`}
+                        className={`w-full h-40 object-cover rounded ${currentRoomForImages.mainImage === imageUrl ? 'border-4 border-blue-500' : 'border border-gray-200'}`}
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity rounded">
                         {currentRoomForImages.mainImage !== imageUrl && (
                           <button
                             type="button"
                             onClick={() => setMainImage(currentRoomForImages._id, imageUrl)}
-                            className="bg-accent hover:bg-accent-dark text-white py-1 px-2 rounded text-sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-sm"
                           >
                             הגדר כראשית
                           </button>
@@ -897,7 +899,7 @@ const RoomsManagement = () => {
                         </button>
                       </div>
                       {currentRoomForImages.mainImage === imageUrl && (
-                        <div className="absolute top-2 right-2 bg-accent text-white text-xs py-1 px-2 rounded-full">
+                        <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs py-1 px-2 rounded-full">
                           ראשית
                         </div>
                       )}
@@ -905,107 +907,38 @@ const RoomsManagement = () => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-gray-50 p-4 rounded mb-6 text-center">
-                  <p className="text-gray-500">אין תמונות מותאמות אישית לחדר זה</p>
+                <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                  <p className="text-gray-500 mb-2">אין תמונות לחדר זה</p>
+                  <p className="text-gray-400 text-sm">העלה תמונות באמצעות הכפתור למטה</p>
                 </div>
               )}
 
-              <div className="border border-dashed border-gray-300 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-medium mb-3">העלאת תמונות חדשות</h3>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultipleImageUpload(e, currentRoomForImages._id)}
-                  className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-accent file:text-white
-                    hover:file:bg-accent-dark"
-                />
-                <p className="mt-2 text-sm text-gray-500">ניתן לבחור מספר תמונות במקביל</p>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-3">ספריית תמונות מובנית</h3>
-                <p className="text-sm text-gray-500 mb-4">בחר מאחת התמונות הבאות להגדרה מהירה</p>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר זוגי 1" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר זוגי 1</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר משפחתי" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר משפחתי</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1586105251261-72a756497a11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1586105251261-72a756497a11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר משפחתי מרווח" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר משפחתי מרווח</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1576675784201-0e142b423952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1576675784201-0e142b423952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר זוגי פלוס" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר זוגי פלוס</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1591088398332-8a7791972843?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1591088398332-8a7791972843?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="סוויטה" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">סוויטה</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר זוגי 2" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר זוגי 2</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1625244724120-1fd1d34d00f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1625244724120-1fd1d34d00f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="חדר זוגי 3" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">חדר זוגי 3</p>
-                  </div>
-                  
-                  <div className="relative group cursor-pointer" onClick={() => setDefaultImage(currentRoomForImages._id, "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80")}>
-                    <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80" alt="ברירת מחדל" className="w-full h-32 object-cover rounded" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <span className="text-white text-sm bg-accent px-2 py-1 rounded">בחר</span>
-                    </div>
-                    <p className="mt-1 text-xs text-center">ברירת מחדל</p>
-                  </div>
+              <label htmlFor="roomImages" className="block w-full">
+                <div className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg p-6 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+                  </svg>
+                  <p className="text-sm text-gray-600">לחץ להעלאת תמונות חדשות לחדר זה</p>
+                  <p className="text-xs text-gray-500 mt-1">ניתן לבחור מספר תמונות בבת אחת</p>
                 </div>
-              </div>
+                <input 
+                  id="roomImages" 
+                  type="file" 
+                  accept="image/*" 
+                  multiple 
+                  className="hidden" 
+                  onChange={(e) => handleMultipleImageUpload(e, currentRoomForImages._id)}
+                />
+              </label>
             </div>
-            
-            <div className="flex justify-end">
+
+            <div className="flex justify-end mt-4">
               <button
                 type="button"
                 onClick={closeImageManager}
-                className="bg-accent hover:bg-accent-dark text-white py-2 px-4 rounded"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
               >
-                סיום
+                סגור
               </button>
             </div>
           </div>

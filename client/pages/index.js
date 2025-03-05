@@ -130,7 +130,7 @@ export default function Home() {
                 <div className="bg-slate-50 aspect-video relative overflow-hidden group">
                   <div className="absolute inset-0">
                     <Image 
-                      src="/images/room1.jpg" 
+                      src="https://placehold.co/800x600/e0e0e0/939393?text=חדר+זוגי"
                       alt="חדר זוגי"
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -145,7 +145,7 @@ export default function Home() {
                 <div className="bg-slate-50 aspect-video relative overflow-hidden group">
                   <div className="absolute inset-0">
                     <Image 
-                      src="/images/room2.jpg" 
+                      src="https://placehold.co/800x600/e0e0e0/939393?text=סוויטה+משפחתית"
                       alt="סוויטה משפחתית"
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"

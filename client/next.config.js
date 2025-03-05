@@ -3,13 +3,15 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   i18n: {
-    // תמיכה בעברית ואנגלית
-    locales: ['he', 'en'],
+    // הגדרות אינטרנציונליזציה
+    locales: ['he'],
     defaultLocale: 'he',
-    localeDetection: true,
+    // מחיקת השדה localeDetection שגורם לשגיאה
   },
   images: {
-    domains: ['localhost', 'placehold.co', 'vercel.app', 'maps.googleapis.com'], // תחומים מורשים לתמונות
+    // השימוש ב-domains מיושן, אבל נשאיר אותו כרגע לתאימות לאחור
+    domains: ['localhost', 'placehold.co', 'vercel.app', 'images.unsplash.com'],
+    // השימוש המומלץ הוא remotePatterns
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,13 +19,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.vercel.app',
+        hostname: 'vercel.app',
       },
       {
         protocol: 'https',
-        hostname: 'maps.googleapis.com',
+        hostname: 'images.unsplash.com',
       },
     ],
+    // הסרנו את dangerouslyAllowSVG ו-contentSecurityPolicy שגורמים לשגיאה
   },
   env: {
     // משתני סביבה שיהיו זמינים לקוד הלקוח
@@ -52,10 +55,6 @@ const nextConfig = {
 
     return config;
   },
-  // הוספת אפשרות להציג תמונות SVG
-  dangerouslyAllowSVG: true,
-  // מאפשר להציג תמונות מאתר placehold.co ומאפשר חיבור ל-localhost:5001
-  contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'; frame-src 'self' https://www.google.com *.google.com;",
 };
 
 module.exports = nextConfig; 

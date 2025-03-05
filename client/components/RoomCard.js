@@ -16,13 +16,22 @@ const RoomCard = ({ room }) => {
     pricePerNight: 350,
     description: 'חדר נעים עם כל הנוחיות הבסיסיות',
     amenities: ['מקלחת', 'מיזוג אוויר', 'Wi-Fi', 'טלוויזיה'],
-    images: ['https://placehold.co/600x400/f8f8f8/d8d8d8?text=Room'],
+    images: ['https://placehold.co/600x400/f8f8f8/d8d8d8?text=תמונת+חדר'],
     isActive: true,
     floor: 1
   };
 
   // שימוש בנתוני דמו אם אין נתונים אמיתיים
   const roomData = room || demoRoom;
+  
+  // לוגיקה משופרת לבחירת תמונת תצוגה:
+  // 1. אם יש תמונות אחרות במערך images, נשתמש בתמונה הראשונה משם ונתעלם מ-mainImage
+  // 2. אם אין תמונות ב-images, רק אז נשתמש ב-mainImage אם הוא קיים
+  // 3. אם אין גם mainImage וגם אין תמונות ב-images, נציג תמונת ברירת מחדל
+  const displayImage = 
+    (roomData.images && roomData.images.length > 0) ? 
+      roomData.images[0] : 
+      (roomData.mainImage || 'https://placehold.co/600x400/f8f8f8/d8d8d8?text=אין+תמונה');
   
   return (
     <motion.div 
@@ -36,7 +45,7 @@ const RoomCard = ({ room }) => {
     >
       <div className="relative h-48 w-full overflow-hidden">
         <Image
-          src={roomData.images[0]}
+          src={displayImage}
           alt={`חדר ${roomData.roomNumber}`}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
@@ -92,4 +101,4 @@ const RoomCard = ({ room }) => {
   );
 };
 
-export default RoomCard; 
+export default RoomCard;
