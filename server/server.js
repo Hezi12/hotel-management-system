@@ -99,7 +99,7 @@ app.post('/login', (req, res, next) => {
 });
 
 // שליחת קבצים סטטיים בסביבת ייצור
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && process.env.SERVE_STATIC === 'true') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 
   app.get('*', (req, res) => {
