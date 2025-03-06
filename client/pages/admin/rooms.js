@@ -461,7 +461,7 @@ const RoomsManagement = () => {
     setCurrentRoomForImages(room);
     setShowImageManager(true);
   };
-  
+
   // פונקציה לסגירת מנהל התמונות
   const closeImageManager = () => {
     setShowImageManager(false);
@@ -921,16 +921,16 @@ const RoomsManagement = () => {
                   <p className="text-sm text-gray-600">לחץ להעלאת תמונות חדשות לחדר זה</p>
                   <p className="text-xs text-gray-500 mt-1">ניתן לבחור מספר תמונות בבת אחת</p>
                 </div>
-                <input 
+                <input
                   id="roomImages" 
-                  type="file" 
-                  accept="image/*" 
-                  multiple 
+                  type="file"
+                  accept="image/*"
+                  multiple
                   className="hidden" 
                   onChange={(e) => handleMultipleImageUpload(e, currentRoomForImages._id)}
                 />
               </label>
-            </div>
+              </div>
 
             <div className="flex justify-end mt-4">
               <button
