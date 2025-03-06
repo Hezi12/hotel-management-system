@@ -34,4 +34,7 @@ package-lock.json
 /server/package-lock.json
 
 # MongoDB local data
-/data 
+/data
+
+# Run PIDs file
+.run_pids 
