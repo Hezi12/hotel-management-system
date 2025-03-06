@@ -1,31 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd hotel-management-system/client && npm install && npm run build",
-  "outputDirectory": "hotel-management-system/client/.next",
-  "installCommand": "cd hotel-management-system/client && npm install",
   "framework": "nextjs",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://hotel-management-api.onrender.com"
-  },
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
-  ],
-  "functions": {
-    "api/login.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "api/test-login.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "api/create-admin.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "api/index.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
   }
 } 
