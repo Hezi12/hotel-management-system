@@ -1,9 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": ".next",
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/.next",
+  "installCommand": "cd client && npm install",
   "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://your-backend-url.com/api"
+  },
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
   ],

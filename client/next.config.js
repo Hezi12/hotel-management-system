@@ -4,14 +4,14 @@ const nextConfig = {
   swcMinify: true,
   i18n: {
     // הגדרות אינטרנציונליזציה
-    locales: ['he'],
+    locales: ['he', 'en'],
     defaultLocale: 'he',
     localeDetection: false,
   },
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
+        protocol: 'https',
         hostname: 'localhost',
       },
       {
@@ -21,19 +21,31 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'hotel-management-system-server.onrender.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      // הוספת תמיכה בתמונות מכל מקור בסביבת ייצור
+      {
+        protocol: 'https',
+        hostname: '**.vercel.app',
       }
     ],
     formats: ['image/avif', 'image/webp'],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   env: {
     // משתני סביבה שיהיו זמינים לקוד הלקוח
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || '/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://your-backend-url.com/api',
     NEXT_PUBLIC_HOTEL_NAME: 'רוטשילד 79',
     NEXT_PUBLIC_HOTEL_ADDRESS: 'רוטשילד 79, פתח תקווה',
   },
   async rewrites() {
     // בסביבת פיתוח, מפנה לשרת המקומי
-    // בסביבת ייצור, מפנה ל-API של Vercel
+    // בסביבת ייצור, מפנה לשרת ה-API החיצוני
     return [
       {
         source: '/api/:path*',

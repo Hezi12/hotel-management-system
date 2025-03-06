@@ -9,35 +9,53 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# הפעלת השרת
-echo -e "${BLUE}הפעלת השרת...${NC}"
-cd server && npm start & 
-SERVER_PID=$!
+# העתקת קבצי סביבת הייצור
+echo "מעתיק קבצי סביבת ייצור..."
+if [ -f "./client/.env.production" ]; then
+  cp ./client/.env.production ./client/.env.local
+  echo "קובץ סביבת ייצור הועתק לקליינט"
+else
+  echo "אזהרה: קובץ .env.production לא נמצא בתיקיית הקליינט"
+fi
 
-# חזרה לתיקייה הראשית והפעלת הקליינט
-echo -e "${GREEN}הפעלת הקליינט...${NC}"
-cd "$(dirname "$0")" # חזרה לתיקייה הראשית של הפרויקט
-cd client && npm start &
+if [ -f "./server/.env.production" ]; then
+  cp ./server/.env.production ./server/.env
+  echo "קובץ סביבת ייצור הועתק לשרת"
+else
+  echo "אזהרה: קובץ .env.production לא נמצא בתיקיית השרת"
+fi
+
+# בניית הקליינט
+echo "בונה את גרסת הייצור של הקליינט..."
+cd client
+npm run build
+if [ $? -ne 0 ]; then
+  echo "שגיאה בבניית הקליינט"
+  exit 1
+fi
+
+# הפעלת הקליינט בתצורת ייצור
+echo "מפעיל את הקליינט בתצורת ייצור..."
+npm run start &
 CLIENT_PID=$!
+echo "הקליינט פועל בתהליך מספר: $CLIENT_PID"
 
-# פונקציה שתרוץ בעת סגירת הסקריפט
-function cleanup {
-  echo -e "${BLUE}סוגר את כל התהליכים...${NC}"
-  kill $SERVER_PID
-  kill $CLIENT_PID
-  exit
-}
+# חזרה לתיקיית הבסיס והפעלת השרת
+cd ../server
+echo "מפעיל את השרת בתצורת ייצור..."
+NODE_ENV=production node server.js &
+SERVER_PID=$!
+echo "השרת פועל בתהליך מספר: $SERVER_PID"
 
-# רשום את הפונקציה לסגירה בעת קבלת אות סיום
-trap cleanup SIGINT
-
-# מציג הודעה על איך לסגור
-echo -e "${GREEN}מערכת הייצור פועלת!${NC}"
-echo "ממשק המשתמש זמין בכתובת: http://localhost:3000 (יתכן שיהיה זמין בפורט 3001 או 3002)"
-echo "ממשק הניהול זמין בכתובת: http://localhost:3000/admin (יתכן שיהיה זמין בפורט 3001 או 3002)"
+cd ..
+echo "==============================================="
+echo "המערכת פועלת בסביבת ייצור!"
+echo "ממשק המשתמש זמין בכתובת: http://localhost:3000"
 echo "ה-API של השרת זמין בכתובת: http://localhost:5001/api"
-echo ""
 echo "לחץ על CTRL+C כדי לעצור את כל השירותים"
 
-# השאר את הסקריפט רץ
+# שמירת מזהי התהליכים לקובץ
+echo "$CLIENT_PID $SERVER_PID" > .prod_pids
+
+# המתנה לסיום
 wait 

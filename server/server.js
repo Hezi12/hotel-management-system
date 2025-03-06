@@ -13,17 +13,13 @@ const connectDB = require('./config/db');
 // יצירת יישום Express
 const app = express();
 
-// CORS middleware עם אפשרויות להגדיר מקורות מורשים
+// הגדרות CORS מעודכנות לתמיכה בפרישה בענן
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'https://hotel-management-system-weld-nine.vercel.app',
-    'https://hotel-management-system-server.onrender.com'
-  ],
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-vercel-app.vercel.app', 'https://your-custom-domain.com'] 
+    : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
   credentials: true
 };
 
@@ -95,6 +91,13 @@ app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/finance', require('./routes/finance'));
 
+// נתיב עבור התחברות (במקום /api/auth/login)
+app.post('/login', (req, res, next) => {
+  console.log('התקבלה בקשת התחברות ב-/login - מעביר ל-/api/auth/login');
+  req.url = '/api/auth/login';
+  app._router.handle(req, res, next);
+});
+
 // שליחת קבצים סטטיים בסביבת ייצור
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
@@ -107,6 +110,32 @@ if (process.env.NODE_ENV === 'production') {
 // נתיב בסיסי לבדיקת פעילות השרת
 app.get('/', (req, res) => {
   res.json({ message: 'ברוכים הבאים ל-API של מערכת ניהול המלונית!' });
+});
+
+// נתיב ל-/api
+app.get('/api', (req, res) => {
+  console.log('הגעה לנתיב /api - שולח תשובה');
+  
+  // יצירת תשובה עם מידע מורחב
+  const apiResponse = {
+    message: 'ברוכים הבאים ל-API של מערכת ניהול המלונית!',
+    endpoints: [
+      '/api/users',
+      '/api/auth',
+      '/api/rooms',
+      '/api/bookings',
+      '/api/dashboard',
+      '/api/finance'
+    ],
+    status: 'פעיל',
+    version: '1.0',
+    serverTime: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  };
+  
+  // שליחת התשובה
+  res.json(apiResponse);
+  console.log('תשובה נשלחה בהצלחה מנתיב /api');
 });
 
 // טיפול בשגיאות
@@ -136,20 +165,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// בדיקה אם הקוד רץ ישירות או מיובא כמודול
-// אם רץ ישירות, מפעיל את השרת
-// אם מיובא (כמו ב-Vercel), רק מייצא את האפליקציה
-if (require.main === module) {
-  // הגדרת פורט והפעלת השרת
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => {
-    console.log(`\n========== השרת פועל ==========`);
-    console.log(`זמן התחלה: ${new Date().toISOString()}`);
-    console.log(`פורט: ${PORT}`);
-    console.log(`סביבה: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`==============================\n`);
-  });
-}
+// התאמות לפורט בסביבת ייצור
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`========== השרת פועל ==========`);
+  console.log(`זמן התחלה: ${new Date().toISOString()}`);
+  console.log(`פורט: ${PORT}`);
+  console.log(`סביבה: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`==============================`);
+});
 
 // ייצוא האפליקציה לשימוש ב-Vercel
 module.exports = app; 
