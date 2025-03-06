@@ -16,7 +16,7 @@ const app = express();
 // הגדרות CORS מעודכנות לתמיכה בפרישה בענן
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-vercel-app.vercel.app', 'https://your-custom-domain.com'] 
+    ? ['https://hotel-management-system.vercel.app'] 
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],

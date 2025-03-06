@@ -60,6 +60,12 @@ const nextConfig = {
       use: ['@svgr/webpack'],
     });
 
+    // הוספת טיפול מפורש בקבצי CSS
+    config.module.rules.push({
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
+    });
+
     return config;
   },
 };
